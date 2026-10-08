@@ -85,14 +85,14 @@ type WebUIConfig struct {
 }
 
 type PerformanceConfig struct {
-	MaxIdleConns             int `json:"max_idle_conns"`
-	MaxIdleConnsPerHost      int `json:"max_idle_conns_per_host"`
-	MaxConnsPerHost          int `json:"max_conns_per_host"`
-	IdleConnTimeoutSeconds   int `json:"idle_conn_timeout_seconds"`
-	ConnectTimeoutSeconds    int `json:"connect_timeout_seconds"`
-	FailureCooldownSeconds   int `json:"failure_cooldown_seconds"`
-	AttemptTimeoutSeconds    int `json:"attempt_timeout_seconds"`
-	FirstEventTimeoutSeconds int `json:"first_event_timeout_seconds"`
+	MaxIdleConns                    int `json:"max_idle_conns"`
+	MaxIdleConnsPerHost             int `json:"max_idle_conns_per_host"`
+	MaxConnsPerHost                 int `json:"max_conns_per_host"`
+	IdleConnTimeoutSeconds          int `json:"idle_conn_timeout_seconds"`
+	ConnectTimeoutSeconds           int `json:"connect_timeout_seconds"`
+	FailureCooldownSeconds          int `json:"failure_cooldown_seconds"`
+	AttemptTimeoutSeconds           int `json:"attempt_timeout_seconds"`
+	FirstEventTimeoutSeconds        int `json:"first_event_timeout_seconds"`
 	BodyIdleTimeoutSeconds          int `json:"body_idle_timeout_seconds"`
 	ResponsesBodyIdleTimeoutSeconds int `json:"responses_body_idle_timeout_seconds"`
 }
