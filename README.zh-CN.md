@@ -102,7 +102,7 @@ docker run -d --name opencode2api \
   opencode2api:local
 ```
 
-在 Docker 中使用本地 `proxyfile` 时，代理文件需要挂载到容器内配置指定的位置；远程 HTTP(S) 代理文件由容器直接拉取。
+在 Docker 中使用 `proxyfile` 时，代理文件也需要挂载到容器内配置指定的位置。
 
 ## API 调用
 
@@ -257,7 +257,7 @@ Key 初始化时均衡分配到代理。真实流量可以触发代理检查、K
 | `upstream.zen`              | `https://opencode.ai/zen`。                                                           |
 | `upstream.go`               | `https://opencode.ai/zen/go`。                                                        |
 | `proxies`                   | 两个代理来源都为空时，使用 `["direct"]`。                                             |
-| `proxyfile`                 | 可选；本地相对路径基于配置文件所在目录解析，也可以直接填写 HTTP(S) URL。                 |
+| `proxyfile`                 | 可选；相对路径基于配置文件所在目录解析。                                              |
 | `models.refresh_seconds`    | `300`；最小为 1。                                                                     |
 | `models.protocols`          | `{}`；按模型 ID 覆盖原生协议。                                                        |
 | `reasoning.effort`          | 空（关闭）；可选 `auto`、`minimal`、`low`、`medium`、`high`、`xhigh`、`max`、`none`。 |
@@ -293,7 +293,7 @@ WebUI 的配置中心也提供默认强度和按模型覆盖。管理 API 的 `G
 
 代理支持 `direct`、`http://`、`https://`、`socks5://` 和 `socks5h://`，URL 可包含认证信息。配置内代理先加载，再追加 `proxyfile` 内容，并按首次出现的顺序去重。
 
-代理文件每行一个地址，允许空行和注释。`proxyfile` 可以填写本地路径，也可以填写 `http://` / `https://` URL；远程文件会在配置加载或热重载时自动拉取：
+代理文件每行一个地址，允许空行和注释：
 
 ```text
 # 首选代理
