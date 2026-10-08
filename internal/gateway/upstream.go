@@ -302,7 +302,7 @@ func (g *Gateway) doAnonymousUpstream(ctx context.Context, route models.Route, b
 		}
 		setRequestCredential(ctx, config.TierZen, "anonymous", "anonymous", true, node.proxy)
 		started := time.Now()
-		resp, err := doInferenceAttempt(node.proxy.client, req, time.Duration(g.cfg.Performance.FirstEventTimeoutSeconds)*time.Second, time.Duration(g.cfg.Performance.BodyIdleTimeoutSeconds)*time.Second)
+		resp, err := doInferenceAttempt(node.proxy.client, req, time.Duration(g.cfg.Performance.FirstEventTimeoutSeconds)*time.Second, g.cfg.Performance.BodyIdleTimeout(route.ProtocolFor(config.TierZen)))
 		duration := time.Since(started)
 		if ctx.Err() != nil {
 			// The parent budget expired while this attempt was in flight. Its
@@ -589,7 +589,7 @@ func (g *Gateway) doSelectedKeyUpstream(ctx context.Context, route models.Route,
 		return nil, err, 0
 	}
 	started := time.Now()
-	resp, err := doInferenceAttempt(proxy.client, req, time.Duration(g.cfg.Performance.FirstEventTimeoutSeconds)*time.Second, time.Duration(g.cfg.Performance.BodyIdleTimeoutSeconds)*time.Second)
+	resp, err := doInferenceAttempt(proxy.client, req, time.Duration(g.cfg.Performance.FirstEventTimeoutSeconds)*time.Second, g.cfg.Performance.BodyIdleTimeout(route.ProtocolFor(override.Tier)))
 	duration := time.Since(started)
 	g.recordUpstreamAttempt(ctx, route, ids, attemptOffset+1, keyID, "key", false, proxy, resp, err, duration)
 	if err != nil {
@@ -658,7 +658,7 @@ func (g *Gateway) doKeyUpstream(ctx context.Context, route models.Route, bodies 
 		keyID := config.KeyDisplayID(node.key)
 		setRequestCredential(ctx, route.Tier, keyID, "key", false, proxy)
 		attemptStarted := time.Now()
-		resp, err := doInferenceAttempt(proxy.client, req, time.Duration(g.cfg.Performance.FirstEventTimeoutSeconds)*time.Second, time.Duration(g.cfg.Performance.BodyIdleTimeoutSeconds)*time.Second)
+		resp, err := doInferenceAttempt(proxy.client, req, time.Duration(g.cfg.Performance.FirstEventTimeoutSeconds)*time.Second, g.cfg.Performance.BodyIdleTimeout(route.Protocol))
 		attemptDuration := time.Since(attemptStarted)
 		if ctx.Err() != nil {
 			// The request budget expired while this attempt was in flight. A
