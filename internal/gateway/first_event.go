@@ -114,7 +114,7 @@ func (b *idleTimeoutBody) Close() error {
 }
 
 func doInferenceAttempt(client *http.Client, req *http.Request, timeout time.Duration, bodyIdleTimeout time.Duration) (*http.Response, error) {
-	if timeout <= 0 || strings.HasSuffix(req.URL.Path, "/systemone") {
+	if strings.HasSuffix(req.URL.Path, "/systemone") {
 		return client.Do(req)
 	}
 	ctx, cancel := context.WithCancelCause(req.Context())
@@ -127,13 +127,18 @@ func doInferenceAttempt(client *http.Client, req *http.Request, timeout time.Dur
 		resp.Body = &attemptBody{Reader: resp.Body, body: resp.Body, cancel: cancel}
 		return resp, nil
 	}
-	timer := time.AfterFunc(timeout, func() { cancel(errFirstEventTimeout) })
+	var timer *time.Timer
+	if timeout > 0 {
+		timer = time.AfterFunc(timeout, func() { cancel(errFirstEventTimeout) })
+	}
 	reader := bufio.NewReader(resp.Body)
 	prefix, err := readFirstEvent(reader)
-	stopped := timer.Stop()
-	if !stopped && ctx.Err() == nil {
-		// Stop(false) means the callback may still be about to run.
-		cancel(errFirstEventTimeout)
+	if timer != nil {
+		stopped := timer.Stop()
+		if !stopped && ctx.Err() == nil {
+			// Stop(false) means the callback may be about to run concurrently.
+			cancel(errFirstEventTimeout)
+		}
 	}
 	if cause := context.Cause(ctx); cause != nil {
 		err = cause
