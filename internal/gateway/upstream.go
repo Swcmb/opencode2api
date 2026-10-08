@@ -349,7 +349,7 @@ var anonymousCoreTools = []string{"bash", "glob", "grep", "read"}
 // that already satisfy both (or are not JSON objects) are returned
 // unchanged. If the client supplied no tools, synthesized gate tools are marked
 // non-callable so the compatibility shim cannot change model behavior.
- // System One payloads are decision requests, not agent traffic, so they are
+// System One payloads are decision requests, not agent traffic, so they are
 // forwarded verbatim; injecting streaming or tool definitions would make the
 // upstream reject them.
 func prepareAnonymousBody(body []byte, protocol wire.Protocol) []byte {
