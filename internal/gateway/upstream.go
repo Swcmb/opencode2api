@@ -338,17 +338,20 @@ func (g *Gateway) doAnonymousUpstream(ctx context.Context, route models.Route, b
 }
 
 // anonymousCoreTools are the tool names the anonymous free tier expects on
-// an agent-shaped request. Requests without them are rejected with 403
-// FreeTierError. Only the names matter; the gateway synthesizes minimal
-// definitions for whichever ones the downstream client did not declare.
-var anonymousCoreTools = []string{"bash", "edit", "glob", "grep", "read"}
+// an agent-shaped request. Current Zen free-tier validation requires the
+// canonical quartet bash + glob + grep + read; extra/fake names are not needed.
+// Requests declaring fewer than this quartet can be rejected with 403
+// FreeTierError, so the gateway synthesizes only the missing canonical tools.
+var anonymousCoreTools = []string{"bash", "glob", "grep", "read"}
 
 // prepareAnonymousBody returns a copy of body normalized for the anonymous
-// free tier: streaming enabled plus the core agent tools present. Bodies
+// free tier: streaming enabled plus the canonical agent tools present. Bodies
 // that already satisfy both (or are not JSON objects) are returned
-// unchanged. System One payloads are decision requests, not agent traffic, so
-// they are forwarded verbatim; injecting streaming or tool definitions would
-// make the upstream reject them.
+// unchanged. If the client supplied no tools, synthesized gate tools are marked
+// non-callable so the compatibility shim cannot change model behavior.
+ // System One payloads are decision requests, not agent traffic, so they are
+// forwarded verbatim; injecting streaming or tool definitions would make the
+// upstream reject them.
 func prepareAnonymousBody(body []byte, protocol wire.Protocol) []byte {
 	if protocol == wire.SystemOne {
 		return body
@@ -406,6 +409,14 @@ func ensureAnonymousTools(payload map[string]any, protocol wire.Protocol) bool {
 	raw, exists := payload["tools"]
 	if !exists {
 		payload["tools"] = anonymousToolset(protocol, nil)
+		// The synthesized tools exist only to satisfy the upstream anonymous
+		// lane fingerprint. They are not client capabilities and must not become
+		// callable when the original request had no tools.
+		if protocol == wire.Chat && payload["tool_choice"] == nil {
+			payload["tool_choice"] = "none"
+		} else if protocol == wire.Responses && payload["tool_choice"] == nil {
+			payload["tool_choice"] = "auto"
+		}
 		return true
 	}
 	items, ok := raw.([]any)
