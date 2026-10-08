@@ -36,3 +36,24 @@ func TestReadProxyFileRemoteHTTPError(t *testing.T) {
 		t.Fatal("readProxyFile() error = nil, want HTTP error")
 	}
 }
+
+func TestIsRemoteProxyFile(t *testing.T) {
+	tests := []struct {
+		name string
+		rawURL string
+		want bool
+	}{
+		{name: "http", rawURL: "http://example.com/proxies.txt", want: true},
+		{name: "https", rawURL: "https://example.com/proxies.txt", want: true},
+		{name: "local path", rawURL: "./proxies.txt", want: false},
+		{name: "unsupported scheme", rawURL: "ftp://example.com/proxies.txt", want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isRemoteProxyFile(tt.rawURL); got != tt.want {
+				t.Fatalf("isRemoteProxyFile(%q) = %v, want %v", tt.rawURL, got, tt.want)
+			}
+		})
+	}
+}
