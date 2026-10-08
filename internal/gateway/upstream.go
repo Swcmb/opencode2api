@@ -283,7 +283,7 @@ func (g *Gateway) doAnonymousUpstream(ctx context.Context, route models.Route, b
 			}
 			break
 		}
-		node := cursor.Next()
+		node := cursor.NextForModel(route.ID)
 		if node == nil {
 			break
 		}
@@ -723,9 +723,9 @@ func (g *Gateway) observeAnonymousResult(ctx context.Context, node *anonymousNod
 	status := upstreamStatus(resp)
 	g.syncProxyResult(ctx, node.proxy, status, err)
 	if err == nil && status/100 == 2 {
-		g.anonymous.MarkSuccess(node)
+		g.anonymous.MarkSuccessForModel(node, route.ID)
 	} else {
-		g.anonymous.MarkFailure(node, resp, err)
+		g.anonymous.MarkFailureForModel(node, route.ID, resp, err)
 	}
 }
 
