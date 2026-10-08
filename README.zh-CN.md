@@ -102,7 +102,7 @@ docker run -d --name opencode2api \
   opencode2api:local
 ```
 
-在 Docker 中使用 `proxyfile` 时，代理文件也需要挂载到容器内配置指定的位置。
+在 Docker 中使用本地 `proxyfile` 时，代理文件需要挂载到容器内配置指定的位置；远程 HTTP(S) 代理文件由容器直接拉取。
 
 ## API 调用
 
