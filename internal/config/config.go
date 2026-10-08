@@ -108,6 +108,16 @@ type PerformanceConfig struct {
 // in both the anonymous and the authenticated loops. Without it, one hung exit
 // can consume the entire request budget by itself, and the attempts that follow
 // are fired against an already-expired context.
+// BodyIdleTimeout returns the idle window for an established SSE stream.
+// Responses traffic gets its wider default because reasoning streams can pause
+// substantially longer between body chunks.
+func (cfg PerformanceConfig) BodyIdleTimeout(protocol wire.Protocol) time.Duration {
+	if protocol == wire.Responses {
+		return time.Duration(cfg.ResponsesBodyIdleTimeoutSeconds) * time.Second
+	}
+	return time.Duration(cfg.BodyIdleTimeoutSeconds) * time.Second
+}
+
 func (cfg PerformanceConfig) AttemptTimeout(requestTimeout time.Duration) time.Duration {
 	if cfg.AttemptTimeoutSeconds > 0 {
 		attempt := time.Duration(cfg.AttemptTimeoutSeconds) * time.Second
