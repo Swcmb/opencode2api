@@ -57,7 +57,6 @@ type anonymousModelBan struct {
 	until    time.Time
 }
 
-
 type anonymousCursor struct {
 	pool   *anonymousPool
 	start  int
