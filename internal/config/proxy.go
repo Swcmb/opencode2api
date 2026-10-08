@@ -13,7 +13,7 @@ func resolveProxyFiles(configPath string, cfg *Config) error {
 	effective := append([]string(nil), cfg.Proxies...)
 	if cfg.ProxyFile != "" {
 		resolved := cfg.ProxyFile
-		if !filepath.IsAbs(resolved) {
+		if !isRemoteProxyFile(resolved) && !filepath.IsAbs(resolved) {
 			resolved = filepath.Join(filepath.Dir(configPath), resolved)
 		}
 		proxies, err := readProxyFile(resolved)
