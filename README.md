@@ -257,7 +257,7 @@ See [config.example.json](config.example.json) for a complete starting configura
 | `upstream.zen`              | `https://opencode.ai/zen`.                                                  |
 | `upstream.go`               | `https://opencode.ai/zen/go`.                                               |
 | `proxies`                   | Falls back to `["direct"]` when both proxy sources are empty.               |
-| `proxyfile`                 | Optional; relative paths resolve beside the configuration file.             |
+| `proxyfile`                 | Optional; local paths resolve beside the configuration file; HTTP(S) URLs are fetched directly. |
 | `models.refresh_seconds`    | `300`; minimum 1.                                                           |
 | `models.protocols`          | `{}`; per-model native protocol overrides.                                  |
 | `reasoning.effort`          | Empty (off); `minimal`, `low`, `medium`, `high`, `xhigh`, `max`, or `none`. |
@@ -298,7 +298,7 @@ value, while sending an empty object clears it.
 
 Proxy entries accept `direct`, `http://`, `https://`, `socks5://`, and `socks5h://`, including URL credentials. The inline list is merged with `proxyfile` and deduplicated in order.
 
-A proxy file contains one entry per line and supports blank lines and comments:
+A proxy file contains one entry per line and supports blank lines and comments. `proxyfile` may be a local path or an `http://` / `https://` URL; remote files are fetched when the configuration is loaded or reloaded:
 
 ```text
 # Primary proxy
