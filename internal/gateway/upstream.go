@@ -314,7 +314,7 @@ func (g *Gateway) doAnonymousUpstream(ctx context.Context, route models.Route, b
 			}
 			break
 		}
-		g.observeAnonymousResult(ctx, node, resp, err)
+		g.observeAnonymousResult(ctx, node, route.ID, resp, err)
 		g.recordUpstreamAttempt(ctx, route, ids, attemptOffset+attempts, "anonymous", "anonymous", true, node.proxy, resp, err, duration)
 		if err == nil && resp.StatusCode/100 == 2 {
 			g.logger.Debug("anonymous upstream accepted request", "component", "upstream", "event", "anonymous_attempt_succeeded", "request_id", ids.Request, "attempt", attempts, "tier", config.TierZen, "key_id", "anonymous", "channel", "anonymous", "anonymous", true, "proxy", config.RedactURL(node.proxy.name), "status", resp.StatusCode, "duration_ms", duration.Milliseconds())
@@ -716,16 +716,16 @@ func (g *Gateway) observeKeyResult(ctx context.Context, nodes *nodePool, node *u
 	}
 }
 
-func (g *Gateway) observeAnonymousResult(ctx context.Context, node *anonymousNode, resp *http.Response, err error) {
+func (g *Gateway) observeAnonymousResult(ctx context.Context, node *anonymousNode, model string, resp *http.Response, err error) {
 	if isDiagnosticRequest(ctx) {
 		return
 	}
 	status := upstreamStatus(resp)
 	g.syncProxyResult(ctx, node.proxy, status, err)
 	if err == nil && status/100 == 2 {
-		g.anonymous.MarkSuccessForModel(node, route.ID)
+		g.anonymous.MarkSuccessForModel(node, model)
 	} else {
-		g.anonymous.MarkFailureForModel(node, route.ID, resp, err)
+		g.anonymous.MarkFailureForModel(node, model, resp, err)
 	}
 }
 
