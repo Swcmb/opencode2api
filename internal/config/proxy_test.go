@@ -39,9 +39,9 @@ func TestReadProxyFileRemoteHTTPError(t *testing.T) {
 
 func TestIsRemoteProxyFile(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
 		rawURL string
-		want bool
+		want   bool
 	}{
 		{name: "http", rawURL: "http://example.com/proxies.txt", want: true},
 		{name: "https", rawURL: "https://example.com/proxies.txt", want: true},
