@@ -34,12 +34,12 @@ func (b *attemptBody) Close() error {
 // after the first event. It closes the underlying response when no body bytes
 // arrive within timeout; the blocked Read then returns the dedicated sentinel.
 type idleTimeoutBody struct {
-	body      io.ReadCloser
-	timeout   time.Duration
-	mu        sync.Mutex
-	timer     *time.Timer
-	timedOut  bool
-	closed    bool
+	body     io.ReadCloser
+	timeout  time.Duration
+	mu       sync.Mutex
+	timer    *time.Timer
+	timedOut bool
+	closed   bool
 }
 
 func newIdleTimeoutBody(body io.ReadCloser, timeout time.Duration) io.ReadCloser {
