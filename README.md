@@ -102,7 +102,7 @@ docker run -d --name opencode2api \
   opencode2api:local
 ```
 
-A `proxyfile` used in Docker must also be available inside the container at the configured path.
+A local `proxyfile` used in Docker must also be available inside the container at the configured path; remote HTTP(S) proxy files are fetched by the container.
 
 ## API usage
 
