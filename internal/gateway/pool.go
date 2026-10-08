@@ -37,12 +37,12 @@ type transportPool struct {
 // cooldown per proxy. Unlike key nodes, anonymous nodes are never rebound:
 // changing proxy is the failover mechanism because Zen rate-limits them by IP.
 type anonymousPool struct {
-	nodes             []*anonymousNode
-	next              atomic.Uint64
-	cooldown          time.Duration
-	modelBanCooldown  time.Duration
-	modelBanMu        sync.RWMutex
-	modelBans         map[string]anonymousModelBan
+	nodes            []*anonymousNode
+	next             atomic.Uint64
+	cooldown         time.Duration
+	modelBanCooldown time.Duration
+	modelBanMu       sync.RWMutex
+	modelBans        map[string]anonymousModelBan
 }
 
 type anonymousNode struct {
@@ -52,10 +52,11 @@ type anonymousNode struct {
 }
 
 type anonymousModelBan struct {
-	failures  uint32
-	bannedAt  time.Time
-	until     time.Time
+	failures uint32
+	bannedAt time.Time
+	until    time.Time
 }
+
 
 type anonymousCursor struct {
 	pool   *anonymousPool
