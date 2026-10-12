@@ -2,13 +2,13 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-使用 Go 编写的 **OpenCode Zen / Zen Go API 网关**。对外提供 Chat Completions、Responses 和 Anthropic Messages 接口，按上游原生协议转换请求，并统一管理上游 Key 与代理。
+使用 Go 编写的 **OpenCode Zen / Zen Go API 网关**。对外提供 Chat Completions、Responses、Anthropic Messages 和原生 System One 结构化决策接口；前三种消息协议之间可相互转换，System One 请求与响应则原样透传，并统一管理上游 Key 与代理。
 
 WebUI 内嵌在可执行文件中，运行服务无需 Node.js 或数据库。
 
 ## 功能
 
-- 三种推理协议之间的普通 JSON 响应与 SSE 流式转换。
+- Chat Completions、Responses、Anthropic Messages 三种消息协议之间的 JSON/SSE 转换，以及 System One 决策请求与响应的原样透传。
 - 文本、图片、reasoning、函数工具、工具调用和工具结果；目标协议允许时支持文件内容转换。
 - 独立的 Zen / Go Key 池，可配置优先级、重试和会话亲和性。
 - 使用 OpenCode `public` 凭证的可选 Zen 匿名通道。
@@ -164,7 +164,7 @@ curl http://localhost:8080/v1/messages \
 curl http://localhost:8080/v1/systemone \
   -H "Authorization: Bearer YOUR_LOCAL_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model":"MODEL_ID","state":"1 + 1 = 2","questions":{"arithmetic":{"type":"noul","instructions":"Is 1 + 1 equal to 2?"}}}'
+  -d '{"model":"jev-1.13-free","state":"1 + 1 = 2","questions":{"arithmetic":{"type":"noul","instructions":"Is 1 + 1 equal to 2?"}}}'
 ```
 
 System One 将自由文本状态与类型化问题配对，并返回类型化答案，因此其负载与 chat/responses 桥接结构完全不同，只做原样转发，不做任何转换。只有原生协议为 System One 的模型才能在本接口提供服务；在消息接口（`/v1/chat/completions`、`/v1/responses`）上提交的决策负载同样原样转发，而不经过转换。上游的流式回复按原样透传，不做中断恢复。
@@ -194,7 +194,7 @@ System One 将自由文本状态与类型化问题配对，并返回类型化答
 }
 ```
 
-协议值仅允许 `chat`、`responses`、`anthropic`。使用不支持的原生协议的模型会从模型列表中隐藏，除非配置了覆盖值。
+协议值允许 `chat`、`responses`、`anthropic` 和 `systemone`。使用不支持的原生协议的模型会从模型列表中隐藏，除非配置了覆盖值。
 
 成本、弃用信息及模型限制来自官方 [OpenCode 元数据地址](https://models.opencode.ai/api.json)，每 24 小时刷新一次。能力目录中的限制优先；元数据中的 `limit.context`、`limit.input` 和 `limit.output` 仅补充缺失字段，通过 `/v1/models` 的 `context_window` / `context_length`、`max_input`、`max_output` 暴露。每个 HTTP 客户端的拉取超时为 30 秒，刷新失败时保留已有数据。升级后继续兼容原有 `.models.dev.json` 缓存文件名，无需删除缓存。
 

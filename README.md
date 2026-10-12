@@ -2,13 +2,13 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A Go gateway for **OpenCode Zen and Zen Go**. It exposes Chat Completions, Responses, and Anthropic Messages endpoints, translates between their native protocols, and manages upstream keys and proxies.
+A Go gateway for **OpenCode Zen and Zen Go**. It exposes Chat Completions, Responses, Anthropic Messages, and the native System One structured-decision endpoint. It translates between the three message-oriented protocols and relays System One requests and responses verbatim while managing upstream keys and proxies.
 
 The executable includes the WebUI. Running the service requires no Node.js runtime or database.
 
 ## Capabilities
 
-- JSON and SSE responses across all three inference protocols.
+- JSON and SSE compatibility across Chat Completions, Responses, and Anthropic Messages, plus native System One JSON/SSE passthrough.
 - Text, images, reasoning, function tools, tool calls, and tool results; file content where the target protocol can represent it.
 - Separate Zen and Go key pools, configurable tier preference, retries, and session affinity.
 - Optional anonymous Zen access with the OpenCode `public` credential.
@@ -164,7 +164,7 @@ For streaming, add `"stream": true` to the body and use `curl -N`. Responses inc
 curl http://localhost:8080/v1/systemone \
   -H "Authorization: Bearer YOUR_LOCAL_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model":"MODEL_ID","state":"1 + 1 = 2","questions":{"arithmetic":{"type":"noul","instructions":"Is 1 + 1 equal to 2?"}}}'
+  -d '{"model":"jev-1.13-free","state":"1 + 1 = 2","questions":{"arithmetic":{"type":"noul","instructions":"Is 1 + 1 equal to 2?"}}}'
 ```
 
 System One pairs a free-form state with typed questions and returns typed answers, so the payload shares no shape with the chat/responses bridge and is relayed verbatim, never translated. Only models whose native protocol is System One are served here; a decision payload submitted on a message endpoint (`/v1/chat/completions`, `/v1/responses`) is likewise relayed verbatim instead of converted. Streaming upstream replies are relayed as-is without reset recovery.
@@ -194,7 +194,7 @@ The gateway refreshes Zen/Go `/v1/models` and OpenCode's [capability catalog](ht
 }
 ```
 
-Allowed protocol values are `chat`, `responses`, and `anthropic`. Models using unsupported native protocols are filtered from discovery unless overridden.
+Allowed protocol values are `chat`, `responses`, `anthropic`, and `systemone`. Models using unsupported native protocols are filtered from discovery unless overridden.
 
 Cost, deprecation, and model limits come from the official [OpenCode metadata endpoint](https://models.opencode.ai/api.json), refreshed every 24 hours. OpenCode's capability catalog remains authoritative for context and token limits; metadata `limit.context`, `limit.input`, and `limit.output` fill fields missing from that catalog. These limits are exposed by `/v1/models` as `context_window`/`context_length`, `max_input`, and `max_output` for discovery clients such as CLIProxyAPI and Pi. Metadata requests use a 30-second timeout per HTTP client. Refresh failures retain existing data.
 
