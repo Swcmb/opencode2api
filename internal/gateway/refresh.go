@@ -242,6 +242,11 @@ func (g *Gateway) refreshAnonymousTier(ctx context.Context, base string) []strin
 }
 
 func (g *Gateway) refreshTier(ctx context.Context, base string, nodes *nodePool) []string {
+	if nodes.Len() == 0 {
+		// 池子为空不是失败，是未配置该层 key。静默返回 nil，
+		// 让调用方（refreshZen / refreshTier）走匿名兜底或跳过。
+		return nil
+	}
 	cursor := nodes.Cursor()
 	for attempt := 0; attempt < g.cfg.Retry.MaxAttempts; attempt++ {
 		node := cursor.Next()
